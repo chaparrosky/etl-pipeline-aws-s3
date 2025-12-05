@@ -69,25 +69,31 @@ class MLPredictor:
                                if (f.red_fighter_id == blue_fighter.id and f.winner == 'Red') or
                                (f.blue_fighter_id == blue_fighter.id and f.winner == 'Blue'))
 
+        # Calculate rates first
+        red_ko_rate = (red_fighter.ko_tko_wins / red_fighter.total_fights * 100) if red_fighter.total_fights > 0 else 0
+        red_sub_rate = (red_fighter.submission_wins / red_fighter.total_fights * 100) if red_fighter.total_fights > 0 else 0
+        blue_ko_rate = (blue_fighter.ko_tko_wins / blue_fighter.total_fights * 100) if blue_fighter.total_fights > 0 else 0
+        blue_sub_rate = (blue_fighter.submission_wins / blue_fighter.total_fights * 100) if blue_fighter.total_fights > 0 else 0
+
         features = {
             # Red fighter features
             'red_win_percentage': red_fighter.win_percentage,
             'red_total_fights': red_fighter.total_fights,
-            'red_ko_rate': (red_fighter.ko_tko_wins / red_fighter.total_fights * 100) if red_fighter.total_fights > 0 else 0,
-            'red_sub_rate': (red_fighter.submission_wins / red_fighter.total_fights * 100) if red_fighter.total_fights > 0 else 0,
+            'red_ko_rate': red_ko_rate,
+            'red_sub_rate': red_sub_rate,
             'red_recent_form': red_recent_wins / min(5, len(red_recent_fights)) if red_recent_fights else 0,
 
             # Blue fighter features
             'blue_win_percentage': blue_fighter.win_percentage,
             'blue_total_fights': blue_fighter.total_fights,
-            'blue_ko_rate': (blue_fighter.ko_tko_wins / blue_fighter.total_fights * 100) if blue_fighter.total_fights > 0 else 0,
-            'blue_sub_rate': (blue_fighter.submission_wins / blue_fighter.total_fights * 100) if blue_fighter.total_fights > 0 else 0,
+            'blue_ko_rate': blue_ko_rate,
+            'blue_sub_rate': blue_sub_rate,
             'blue_recent_form': blue_recent_wins / min(5, len(blue_recent_fights)) if blue_recent_fights else 0,
 
             # Differential features
             'win_percentage_diff': red_fighter.win_percentage - blue_fighter.win_percentage,
             'experience_diff': red_fighter.total_fights - blue_fighter.total_fights,
-            'ko_rate_diff': features['red_ko_rate'] - features['blue_ko_rate'] if 'red_ko_rate' in features else 0,
+            'ko_rate_diff': red_ko_rate - blue_ko_rate,
         }
 
         return features
